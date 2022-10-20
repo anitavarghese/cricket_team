@@ -31,7 +31,16 @@ app.get("/players/", async (request, response) => {
   const getListOfPlayers = `
     select * from cricket_team;`;
   let playerArray = await db.all(getListOfPlayers);
-  response.send(playerArray);
+  const convertDbObjectToResponseObject = (playerArray) => {
+    return {
+      playerId: playerArray.player_id,
+      playerName: playerArray.player_name,
+      jerseyNumber: playerArray.jersey_number,
+      role: playerArray.role,
+    };
+  };
+  //response.send(convertDbObjectToResponseObject(playerArray));
+  console.log(convertDbObjectToResponseObject(playerArray));
 });
 
 //Add a player
@@ -69,9 +78,9 @@ app.put("/players/:playerId/", async (request, response) => {
   const { playerName, jerseyNumber, role } = playerDetails;
   const updatePlayerQuery = `
     update cricket_team set
-    player_name=${playerName},
+    player_name='${playerName}',
     jersey_number='${jerseyNumber}',
-     role='${role}
+     role='${role}'
      where player_id=${playerId};`;
   await db.run(updatePlayerQuery);
   response.send("Player Details Updated");
@@ -86,4 +95,5 @@ app.delete("/players/:playerId/", async (request, response) => {
   await db.run(deletePlayerQuery);
   response.send("Player Removed");
 });
+
 module.exports = app;
